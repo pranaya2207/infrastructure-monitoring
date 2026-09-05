@@ -26,6 +26,14 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
+  <!-- Progressive Web App (PWA) Manifest & Mobile Config -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1e3a8a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NIM-PRIS">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.svg">
+
   <!-- Application Stylesheet -->
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -54,6 +62,9 @@
       </div>
 
       <div class="nav-actions">
+        <button id="installAppBtn" class="btn btn-primary" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);" title="Install Standalone App">
+          <i class="fa-solid fa-mobile-screen-button"></i> Install App
+        </button>
         <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode">
           <i id="themeIcon" class="fa-solid fa-sun"></i>
         </button>

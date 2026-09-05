@@ -5,6 +5,7 @@
 
 let activeGovProjects = [];
 let selectedProjectIdForDossier = null;
+let deferredPrompt = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   initGovPlatform();
@@ -12,12 +13,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initGovPlatform() {
   setupTheme();
+  setupPWA();
   setupTabNavigation();
   setupModals();
   setupFilterAndSearch();
   setupMinisterialAdvisor();
   setupGovSimulator();
   loadAllGovData();
+}
+
+// --------------------------------------------------------------------------
+// Progressive Web App (PWA) Setup
+// --------------------------------------------------------------------------
+function setupPWA() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('[PWA] Service Worker registered on scope:', reg.scope))
+        .catch(err => console.log('[PWA] Service Worker registration failed:', err));
+    });
+  }
+
+  const installBtn = document.getElementById('installAppBtn');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) {
+      installBtn.style.display = 'inline-flex';
+    }
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    if (installBtn) installBtn.style.display = 'none';
+    console.log('[PWA] NIM-PRIS installed successfully as an application');
+  });
 }
 
 // --------------------------------------------------------------------------
