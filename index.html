@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NIM-PRIS | National Infrastructure Monitoring & Project Risk Intelligence System</title>
+  <meta name="description" content="National Infrastructure Monitoring & Project Risk Intelligence System (NIM-PRIS) - Real-time AI-powered Earned Value Management (EVM), delay forecasting, and ministerial decision support.">
+
+  <!-- Open Graph & Social Preview Meta Tags -->
+  <meta property="og:title" content="NIM-PRIS | National Infrastructure Monitoring & Risk Intelligence">
+  <meta property="og:description" content="Official AI-powered monitoring platform for national mega-infrastructure projects, EVM analytics, and ministerial decision support.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NIM-PRIS Government Infrastructure Portal">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="NIM-PRIS | National Infrastructure Monitoring & Risk Intelligence">
+  <meta name="twitter:description" content="Official AI-powered monitoring platform for national mega-infrastructure projects, EVM analytics, and ministerial decision support.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="./static/css/style.css">
+</head>
+<body>
+
+  <!-- Top Tricolor National Portal Ribbon -->
+  <div class="national-ribbon"></div>
+
+  <div class="app-container">
+    
+    <!-- Top Navigation & National Authority Header -->
+    <header class="navbar">
+      <div class="brand-section">
+        <div class="brand-badge">
+          <div class="brand-icon" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+            <i class="fa-solid fa-landmark"></i>
+          </div>
+          <div class="brand-text">
+            <h1>NIM-PRIS</h1>
+            <div class="brand-sub">
+              <span>National Infrastructure Monitoring & Project Risk Intelligence System</span>
+              <span class="badge badge-cat" style="font-size: 0.68rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">PM GatiShakti & CCI Division</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode">
+          <i id="themeIcon" class="fa-solid fa-sun"></i>
+        </button>
+        <button class="btn btn-secondary" onclick="exportMasterCSV()" title="Download Full Project Dataset">
+          <i class="fa-solid fa-file-csv"></i> Export Master CSV
+        </button>
+        <button class="btn btn-secondary" onclick="openGovDossier(activeGovProjects[0]?.id || 1)">
+          <i class="fa-solid fa-file-invoice"></i> Sample Briefing
+        </button>
+        <button class="btn btn-primary" onclick="openNewGovProjectModal()">
+          <i class="fa-solid fa-plus"></i> Sanction Project
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-bar">
+      <button class="tab-btn active" data-tab="dashboardTab">
+        <i class="fa-solid fa-grip"></i> Executive Cabinet Dashboard
+      </button>
+      <button class="tab-btn" data-tab="analyticsTab">
+        <i class="fa-solid fa-chart-pie"></i> EVM & Visual Analytics
+      </button>
+      <button class="tab-btn" data-tab="alertsTab">
+        <i class="fa-solid fa-triangle-exclamation"></i> Statutory Risk & Clearances
+        <span id="alertCountBadge" class="tab-badge">0</span>
+      </button>
+      <button class="tab-btn" data-tab="assistantTab">
+        <i class="fa-solid fa-user-tie"></i> AI Ministerial Policy Advisor
+      </button>
+      <button class="tab-btn" data-tab="simulatorTab">
+        <i class="fa-solid fa-sliders"></i> Policy Sandbox
+      </button>
+    </nav>
+
+    <!-- ====================================================================
+         TAB 1: Executive Cabinet Dashboard
+         ==================================================================== -->
+    <main id="dashboardTab" class="tab-pane active">
+
+      <!-- Critical Inter-Ministerial Warning Banner -->
+      <section id="criticalAlertBanner" class="system-banner" style="display: none;">
+        <div class="banner-content">
+          <span class="banner-badge"><i class="fa-solid fa-triangle-exclamation"></i> HIGH INTERVENTION REQUIRED</span>
+          <span id="bannerCriticalText" class="banner-text">Strategic mega-projects require Cabinet Secretariat inter-ministerial coordination.</span>
+        </div>
+        <button class="btn btn-secondary btn-xs" onclick="document.querySelector('[data-tab=alertsTab]').click()">
+          Review Interventions <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </section>
+
+      <!-- Executive KPI Grid -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Sanctioned Capital Outlay</span>
+            <div class="kpi-icon text-primary"><i class="fa-solid fa-coins"></i></div>
+          </div>
+          <div id="kpiTotalOutlay" class="kpi-value">--</div>
+          <div class="kpi-subtitle">Across Strategic Infrastructure Portfolios</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Cumulative Expenditure</span>
+            <div class="kpi-icon text-primary"><i class="fa-solid fa-receipt"></i></div>
+          </div>
+          <div id="kpiCumulativeExp" class="kpi-value">--</div>
+          <div class="kpi-subtitle">Verified Capital Disbursed to Date</div>
+        </div>
+
+        <div class="kpi-card low-risk">
+          <div class="kpi-header">
+            <span class="kpi-title">Schedule Index (Avg SPI)</span>
+            <div class="kpi-icon text-success"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          </div>
+          <div id="kpiAvgSPI" class="kpi-value">--</div>
+          <div class="kpi-subtitle">Earned Value Benchmark (Target ≥ 1.0)</div>
+        </div>
+
+        <div class="kpi-card med-risk">
+          <div class="kpi-header">
+            <span class="kpi-title">Cost Index (Avg CPI)</span>
+            <div class="kpi-icon text-warning"><i class="fa-solid fa-scale-balanced"></i></div>
+          </div>
+          <div id="kpiAvgCPI" class="kpi-value">--</div>
+          <div class="kpi-subtitle">Cost Efficiency Metric (Target ≥ 1.0)</div>
+        </div>
+
+        <div class="kpi-card high-risk">
+          <div class="kpi-header">
+            <span class="kpi-title">Cabinet Interventions</span>
+            <div class="kpi-icon text-danger"><i class="fa-solid fa-gavel"></i></div>
+          </div>
+          <div id="kpiCriticalCount" class="kpi-value">--</div>
+          <div class="kpi-subtitle">Projects with Critical Bottlenecks</div>
+        </div>
+
+        <div class="kpi-card health-accent">
+          <div class="kpi-header">
+            <span class="kpi-title">Pending Clearances</span>
+            <div class="kpi-icon" style="color: var(--cyan);"><i class="fa-solid fa-file-shield"></i></div>
+          </div>
+          <div id="kpiClearanceBottlenecks" class="kpi-value">--</div>
+          <div class="kpi-subtitle">Land Handover or Forest Clearances</div>
+        </div>
+      </section>
+
+      <!-- Filter & Search Controls -->
+      <section class="filter-bar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="projectSearchInput" placeholder="Search by Project Name, Code (e.g. MORTH-DME), Contractor, or State...">
+        </div>
+
+        <div class="filter-group">
+          <select id="ministryFilterSelect" class="select-control">
+            <option value="">All Union Ministries</option>
+            <option value="Ministry of Road Transport & Highways">MoRTH (Highways & Corridors)</option>
+            <option value="Ministry of Railways">Ministry of Railways (DFCC / High Speed)</option>
+            <option value="Ministry of Power">Ministry of Power</option>
+            <option value="Ministry of New & Renewable Energy">MNRE (Solar & Green Energy)</option>
+            <option value="Ministry of Jal Shakti">Ministry of Jal Shakti (Rivers & Water)</option>
+            <option value="Ministry of Housing & Urban Affairs">MoHUA (Metro & RRTS)</option>
+            <option value="Ministry of Ports, Shipping & Waterways">Ports & Inland Waterways</option>
+            <option value="Ministry of Electronics & Information Technology">MeitY (Semiconductors & Digital)</option>
+            <option value="Ministry of Health & Family Welfare">Health & AIIMS Campuses</option>
+            <option value="Ministry of Civil Aviation">Civil Aviation (Greenfield Airports)</option>
+          </select>
+
+          <select id="zoneFilterSelect" class="select-control">
+            <option value="">All Geographic Zones</option>
+            <option value="Northern">Northern Zone</option>
+            <option value="Western">Western Zone</option>
+            <option value="Southern">Southern Zone</option>
+            <option value="Eastern">Eastern Zone</option>
+            <option value="Central">Central Zone</option>
+            <option value="North-Eastern">North-Eastern Zone</option>
+          </select>
+
+          <select id="riskFilterSelect" class="select-control">
+            <option value="">All Risk Levels</option>
+            <option value="LOW">Low Risk (On Schedule)</option>
+            <option value="MEDIUM">Medium Risk (Early Warning)</option>
+            <option value="HIGH">High Risk (Cabinet Review)</option>
+          </select>
+
+          <button class="btn btn-secondary btn-icon" onclick="loadAllGovData()" title="Refresh Portfolio Data">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- National Mega-Projects Monitored Directory -->
+      <section class="table-card">
+        <div class="table-responsive">
+          <table class="projects-table">
+            <thead>
+              <tr>
+                <th>Strategic Mega-Project</th>
+                <th>Ministry & EPC Agency</th>
+                <th>Outlay & Expenditure</th>
+                <th>Physical vs Planned Progress</th>
+                <th>EVM (SPI / CPI) & Delay</th>
+                <th>Land & Clearances</th>
+                <th>AI Risk Status</th>
+                <th>Executive Actions</th>
+              </tr>
+            </thead>
+            <tbody id="projectsTableBody">
+              <!-- Dynamically populated via main.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ====================================================================
+         TAB 2: EVM & Visual Analytics Hub
+         ==================================================================== -->
+    <main id="analyticsTab" class="tab-pane">
+      <div class="charts-grid">
+        
+        <!-- Ministry Outlay vs Expenditure -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="chart-title">Ministry-Wise Capital Allocation vs Expenditure</h2>
+              <p class="chart-desc">Sanctioned Outlay compared with Cumulative Expenditure to Date (₹ in Crores)</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="ministryChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Physical Progress vs Target -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="chart-title">Physical Progress vs Target Schedule (%)</h2>
+              <p class="chart-desc">Verified ground execution progress against approved Cabinet baseline timelines</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="progressChart"></canvas>
+          </div>
+        </div>
+
+        <!-- EVM SPI vs CPI Scatter Quadrant -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="chart-title">Earned Value Performance Matrix (SPI vs CPI)</h2>
+              <p class="chart-desc">Optimal execution quadrant: SPI ≥ 1.0 (On-time) & CPI ≥ 1.0 (Within budget)</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="evmChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Forecast Delay Days -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="chart-title">ML Forecasted Schedule Delays (Days)</h2>
+              <p class="chart-desc">Predictive machine learning forecast of projected delivery lag on critical corridors</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="delayChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 3: Statutory Risk & Clearances Center
+         ==================================================================== -->
+    <main id="alertsTab" class="tab-pane">
+      <div class="table-card" style="padding: 24px;">
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700;">Cabinet Secretariat Inter-Ministerial Review Alert Center</h2>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Automated early-warning triggers based on SPI slippage, cost escalation thresholds, and right-of-way bottlenecks</p>
+          </div>
+          <button class="btn btn-secondary btn-xs" onclick="loadAllGovData()">
+            <i class="fa-solid fa-sync"></i> Refresh Alerts
+          </button>
+        </div>
+
+        <div id="alertsListContainer" class="recs-container">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 4: AI Ministerial Policy Advisor
+         ==================================================================== -->
+    <main id="assistantTab" class="tab-pane">
+      <div class="assistant-wrapper">
+        <div class="assistant-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="brand-icon" style="width: 36px; height: 36px; font-size: 16px; background: #1e3a8a;">
+              <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 0.95rem; font-weight: 700;">AI Ministerial Policy & Decision Advisor</h3>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">Predictive Analytics Engine for Cabinet Ministers, Secretaries & Stakeholders</span>
+            </div>
+          </div>
+          <span class="badge badge-low"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> NIM-PRIS v2.5 Engine Active</span>
+        </div>
+
+        <div id="assistantChatBody" class="assistant-body">
+          <div class="message-bubble assistant">
+            Welcome, Executive Stakeholder. I am your <strong>AI Ministerial Policy Advisor</strong> for the National Infrastructure Monitoring & Project Risk Intelligence System.
+            <br><br>
+            I can cross-reference EVM metrics across ministries, generate executive briefing notes, evaluate land and forest clearance bottlenecks, and forecast budget overruns.
+            <br><br>
+            <em>Select one of the executive prompts below or enter your inquiry:</em>
+          </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="quick-prompts">
+          <span class="prompt-chip">"Which projects have critical schedule lag (SPI < 0.85)?"</span>
+          <span class="prompt-chip">"List all high-risk projects requiring Cabinet intervention"</span>
+          <span class="prompt-chip">"Summarize total capital outlay and expenditure"</span>
+          <span class="prompt-chip">"Draft an executive briefing note for Delhi - Mumbai Expressway"</span>
+          <span class="prompt-chip">"Why is Zojila Tunnel delayed?"</span>
+          <span class="prompt-chip">"Explain environmental bottlenecks in Ken - Betwa River Interlinking"</span>
+        </div>
+
+        <div class="assistant-input-area">
+          <input type="text" id="assistantInput" placeholder="Inquire about project bottlenecks, SPI/CPI, land clearances, or ministerial directives...">
+          <button id="assistantSendBtn" class="btn btn-primary">
+            <i class="fa-solid fa-paper-plane"></i> Send
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         TAB 5: Policy Simulation Sandbox
+         ==================================================================== -->
+    <main id="simulatorTab" class="tab-pane">
+      <div class="table-card" style="padding: 24px;">
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-size: 1.25rem; font-weight: 700;">Infrastructure Policy & Risk "What-If" Simulation Sandbox</h2>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Model hypothetical policy interventions, land acquisition speeds, or budget variations to project SPI, CPI, delay days, and capital escalations before Cabinet approval</p>
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 24px;">
+          <div class="form-group">
+            <label class="form-label">Sanctioned Outlay (₹ in Crores)</label>
+            <input type="number" id="simBudget" class="form-input" value="15000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Actual Expenditure (₹ in Crores)</label>
+            <input type="number" id="simExpenditure" class="form-input" value="11500">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Planned Target Progress (%)</label>
+            <input type="number" id="simPlannedProgress" class="form-input" value="70" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Verified Physical Completion (%)</label>
+            <input type="number" id="simProgress" class="form-input" value="48" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Planned Execution Duration (Months)</label>
+            <input type="number" id="simDuration" class="form-input" value="48">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Delayed Critical-Path Activities</label>
+            <input type="number" id="simDelayedTasks" class="form-input" value="5" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Land Acquisition Handed Over (%)</label>
+            <input type="number" id="simLandAcq" class="form-input" value="84" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Statutory Environmental Clearance Status</label>
+            <select id="simClearance" class="form-select">
+              <option value="Granted">Granted & Approved</option>
+              <option value="Stage II Forest Review" selected>Stage II Forest Review</option>
+              <option value="Pending State Clearance">Pending State Nodal Clearance</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <button id="runSimBtn" class="btn btn-primary" style="padding: 12px 24px;">
+            <i class="fa-solid fa-play"></i> Run Policy Simulation
+          </button>
+        </div>
+
+        <!-- Simulation Forecast Output -->
+        <div id="simResultsBox" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px;">
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-microchip text-primary"></i> Simulation AI & EVM Forecast
+          </h3>
+          <div class="risk-indicators-grid" style="margin-bottom: 16px;">
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Risk Assessment</div>
+              <div id="simResultRisk" class="badge badge-high" style="font-size: 1rem; padding: 6px 14px;">HIGH</div>
+            </div>
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Health Index</div>
+              <div id="simResultHealth" class="indicator-val" style="color: var(--cyan);">--</div>
+            </div>
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Schedule Index (SPI)</div>
+              <div id="simResultSPI" class="indicator-val text-danger">--</div>
+            </div>
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Cost Index (CPI)</div>
+              <div id="simResultCPI" class="indicator-val text-danger">--</div>
+            </div>
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Forecasted Schedule Delay</div>
+              <div id="simResultDelay" class="indicator-val text-danger">--</div>
+            </div>
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Projected Cost Escalation</div>
+              <div id="simResultOverrun" class="indicator-val text-danger">--</div>
+            </div>
+          </div>
+          <div>
+            <div class="indicator-title" style="margin-bottom: 8px;">Recommended Ministerial Directives</div>
+            <ul id="simResultRecs" style="padding-left: 20px; font-size: 0.85rem; line-height: 1.8; color: var(--text-secondary);">
+              <li>Run simulation to generate context-specific policy recommendations.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div> <!-- /app-container -->
+
+
+  <!-- ======================================================================
+       MODAL: Official Ministerial Executive Briefing Dossier
+       ====================================================================== -->
+  <div id="dossierModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 900px;">
+      <div class="modal-header" style="background: rgba(30, 58, 138, 0.15); border-bottom: 2px solid var(--border-color);">
+        <div class="modal-title-group">
+          <div style="font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #60a5fa; font-weight: 700;">
+            Government of India • Executive Cabinet Briefing Dossier
+          </div>
+          <h3 id="dossierProjectName" style="margin-top: 4px;">Strategic Infrastructure Project</h3>
+          <p id="dossierProjectCode" style="font-size: 0.8rem; color: var(--text-muted);"></p>
+        </div>
+        <button class="btn-icon modal-close-trigger"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Project Governance Metadata -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; background: var(--bg-tertiary); padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.82rem;">
+          <div><strong>Union Ministry:</strong> <span id="dossierMinistry">--</span></div>
+          <div><strong>Executing Agency / Contractor:</strong> <span id="dossierAgency">--</span></div>
+          <div><strong>Location & Zone:</strong> <span id="dossierLocation">--</span></div>
+          <div><strong>Priority Classification:</strong> <span id="dossierPriority" class="badge badge-cat">--</span></div>
+        </div>
+
+        <!-- Health Gauge & High-Level Indices -->
+        <div class="risk-hero-grid">
+          <div class="health-gauge-card">
+            <div id="dossierGaugeCircle" class="gauge-circle">
+              <div id="dossierHealthScore" class="gauge-score">--%</div>
+              <div class="gauge-label">Health Index</div>
+            </div>
+            <div style="font-size: 0.8rem; font-weight: 700; margin-top: 4px;">Overall Health Status</div>
+          </div>
+
+          <div class="risk-indicators-grid">
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Sanctioned Outlay</div>
+              <div id="dossierBudget" class="indicator-val text-primary">--</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">Cumulative Exp: <span id="dossierExp" style="font-weight: 700; color: var(--text-primary);">--</span></div>
+            </div>
+
+            <div class="risk-indicator-box">
+              <div class="indicator-title">Projected Cost Escalation</div>
+              <div id="dossierCostOverrun" class="indicator-val text-danger">--</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">Forecast Delay: <span id="dossierDelayDays" style="font-weight: 700; color: var(--text-danger);">--</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earned Value Management (EVM) Table -->
+        <div style="margin-bottom: 20px;">
+          <h4 class="section-subtitle"><i class="fa-solid fa-chart-line text-primary"></i> Earned Value Management (EVM) Performance Indices</h4>
+          <div class="evm-grid">
+            <div class="evm-box">
+              <div class="evm-label">Schedule Index (SPI)</div>
+              <div id="dossierSPI" class="evm-val text-primary">--</div>
+            </div>
+            <div class="evm-box">
+              <div class="evm-label">Cost Index (CPI)</div>
+              <div id="dossierCPI" class="evm-val text-primary">--</div>
+            </div>
+            <div class="evm-box">
+              <div class="evm-label">Schedule Variance (SV)</div>
+              <div id="dossierSV" class="evm-val">--</div>
+            </div>
+            <div class="evm-box">
+              <div class="evm-label">Cost Variance (CV)</div>
+              <div id="dossierCV" class="evm-val">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statutory Clearances & Physical Progress -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px;">
+          <div style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Physical Progress</div>
+            <div id="dossierPhysicalProg" style="font-size: 1.1rem; font-weight: 800;">--</div>
+          </div>
+          <div style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Land Acquisition Handover</div>
+            <div id="dossierLandAcq" style="font-size: 1.1rem; font-weight: 800;">--</div>
+          </div>
+          <div style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Environmental Clearance</div>
+            <div id="dossierEnvClearance" style="font-size: 0.95rem; font-weight: 700;">--</div>
+          </div>
+          <div style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Identified Key Bottleneck</div>
+            <div id="dossierBottleneck" style="font-size: 0.82rem; color: var(--text-secondary);">--</div>
+          </div>
+        </div>
+
+        <!-- Explainable AI Factors -->
+        <div class="factors-section">
+          <h4 class="section-subtitle"><i class="fa-solid fa-magnifying-glass-chart text-primary"></i> Explainable AI (XAI) Bottleneck Diagnosis</h4>
+          <div id="dossierFactorsList"></div>
+        </div>
+
+        <!-- Actionable Ministerial Directives -->
+        <div class="factors-section">
+          <h4 class="section-subtitle"><i class="fa-solid fa-gavel text-warning"></i> Actionable Directives for Inter-Ministerial Review</h4>
+          <div id="dossierRecsList" class="recs-container"></div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close-trigger">Close</button>
+        <button type="button" class="btn btn-primary" onclick="printOfficialBriefing()">
+          <i class="fa-solid fa-print"></i> Print Official Briefing (PDF)
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL: Sanction / Edit Project
+       ====================================================================== -->
+  <div id="govProjectModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 id="govModalTitle">Sanction New National Infrastructure Project</h3>
+          <p style="font-size: 0.76rem; color: var(--text-muted);">Enter project parameters into the national infrastructure registry</p>
+        </div>
+        <button class="btn-icon modal-close-trigger"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="govProjectForm">
+        <div class="modal-body">
+          <input type="hidden" id="govProjectIdHidden">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Project Code *</label>
+              <input type="text" id="projCode" class="form-input" placeholder="e.g. MORTH-DME-04" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Project Name *</label>
+              <input type="text" id="projName" class="form-input" placeholder="e.g. National High-Speed Freight Corridor" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Union Ministry *</label>
+              <select id="projMinistry" class="form-select" required>
+                <option value="Ministry of Road Transport & Highways">Ministry of Road Transport & Highways</option>
+                <option value="Ministry of Railways">Ministry of Railways</option>
+                <option value="Ministry of Power">Ministry of Power</option>
+                <option value="Ministry of New & Renewable Energy">Ministry of New & Renewable Energy</option>
+                <option value="Ministry of Jal Shakti">Ministry of Jal Shakti</option>
+                <option value="Ministry of Housing & Urban Affairs">Ministry of Housing & Urban Affairs</option>
+                <option value="Ministry of Ports, Shipping & Waterways">Ministry of Ports, Shipping & Waterways</option>
+                <option value="Ministry of Electronics & Information Technology">Ministry of Electronics & IT</option>
+                <option value="Ministry of Health & Family Welfare">Ministry of Health & Family Welfare</option>
+                <option value="Ministry of Civil Aviation">Ministry of Civil Aviation</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Executing Agency / Primary EPC Contractor</label>
+              <input type="text" id="projAgency" class="form-input" placeholder="e.g. NHAI / L&T Construction" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Project Location (State / Corridor) *</label>
+              <input type="text" id="projLocation" class="form-input" placeholder="e.g. Maharashtra & Gujarat" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Geographic Zone *</label>
+              <select id="projZone" class="form-select" required>
+                <option value="Northern">Northern Zone</option>
+                <option value="Western">Western Zone</option>
+                <option value="Southern">Southern Zone</option>
+                <option value="Eastern">Eastern Zone</option>
+                <option value="Central">Central Zone</option>
+                <option value="North-Eastern">North-Eastern Zone</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Priority Level *</label>
+              <select id="projPriority" class="form-select" required>
+                <option value="PM GatiShakti Priority">PM GatiShakti Priority</option>
+                <option value="Cabinet Committee (CCI) Monitored">Cabinet Committee (CCI) Monitored</option>
+                <option value="National Strategic Priority">National Strategic Priority</option>
+                <option value="State Priority">State Priority</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Sanctioned Outlay (₹ in Crores) *</label>
+              <input type="number" id="projBudget" class="form-input" step="0.1" placeholder="e.g. 15000" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cumulative Expenditure (₹ in Crores) *</label>
+              <input type="number" id="projExpenditure" class="form-input" step="0.1" placeholder="e.g. 9500" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Planned Execution Duration (Months) *</label>
+              <input type="number" id="projDuration" class="form-input" step="1" value="48" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Sanction Date *</label>
+              <input type="date" id="projStartDate" class="form-input" value="2023-01-01" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Target Commissioning Date *</label>
+              <input type="date" id="projEndDate" class="form-input" value="2027-01-01" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Physical Progress (%) *</label>
+              <input type="number" id="projProgress" class="form-input" min="0" max="100" step="0.1" value="50" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Planned Target Progress (%) *</label>
+              <input type="number" id="projPlannedProgress" class="form-input" min="0" max="100" step="0.1" value="65" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Land Acquisition Handover (%)</label>
+              <input type="number" id="projLandAcq" class="form-input" min="0" max="100" value="95">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Environmental Clearance</label>
+              <select id="projClearance" class="form-select">
+                <option value="Granted">Granted & Approved</option>
+                <option value="Stage II Forest Review">Stage II Forest Review</option>
+                <option value="Pending State Clearance">Pending State Clearance</option>
+                <option value="Not Required">Not Required</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Delayed Critical-Path Activities</label>
+              <input type="number" id="projDelayedTasks" class="form-input" min="0" value="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Key Critical Bottleneck</label>
+              <input type="text" id="projBottleneck" class="form-input" placeholder="e.g. Forest clearance in KM 45-60">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary modal-close-trigger">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Sanction Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Floating Quick AI Policy Advisor Trigger -->
+  <button id="floatingAIBtn" class="floating-ai-btn" title="AI Ministerial Policy Advisor">
+    <i class="fa-solid fa-sparkles"></i>
+  </button>
+
+  <!-- Scripts: Loaded in dependency order -->
+  <script src="./static/js/gov_data.js"></script>
+  <script src="./static/js/ml_engine_client.js"></script>
+  <script src="./static/js/charts.js"></script>
+  <script src="./static/js/main.js"></script>
+</body>
+</html>

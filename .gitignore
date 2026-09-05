@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large binaries
+cloudflared.exe
+*.exe
+
+# Database & Logs
+*.log
+.system_generated/
+database/*.db
+
+# OS files
+.DS_Store
+Thumbs.db
