@@ -42,43 +42,129 @@
   <!-- Top Tricolor National Portal Ribbon -->
   <div class="national-ribbon"></div>
 
-  <div class="app-container">
-    
-    <!-- Top Navigation & National Authority Header -->
-    <header class="navbar">
-      <div class="brand-section">
-        <div class="brand-badge">
-          <div class="brand-icon" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
-            <i class="fa-solid fa-landmark"></i>
-          </div>
-          <div class="brand-text">
-            <h1>NIM-PRIS</h1>
-            <div class="brand-sub">
-              <span>National Infrastructure Monitoring & Project Risk Intelligence System</span>
-              <span class="badge badge-cat" style="font-size: 0.68rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">PM GatiShakti & CCI Division</span>
-            </div>
-          </div>
+  <!-- ======================================================================
+       OFFICIAL GOVERNMENT SECURITY AUTHENTICATION GATEWAY
+       ====================================================================== -->
+  <div id="loginGatewayOverlay" class="login-gateway-overlay">
+    <div class="login-gateway-card">
+      <div class="login-top-ribbon"></div>
+      
+      <div class="login-card-header">
+        <div class="login-emblem-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2>NIM-PRIS Portal</h2>
+        <p>National Infrastructure Monitoring & Project Risk Intelligence System</p>
+        <div class="security-clearance-pill">
+          <i class="fa-solid fa-lock"></i> Restricted Government Access • Level 3 Clearance
         </div>
       </div>
 
-      <div class="nav-actions">
-        <button id="installAppBtn" class="btn btn-primary" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);" title="Install Standalone App">
-          <i class="fa-solid fa-mobile-screen-button"></i> Install App
-        </button>
-        <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode">
-          <i id="themeIcon" class="fa-solid fa-sun"></i>
-        </button>
-        <button class="btn btn-secondary" onclick="exportMasterCSV()" title="Download Full Project Dataset">
-          <i class="fa-solid fa-file-csv"></i> Export Master CSV
-        </button>
-        <button class="btn btn-secondary" onclick="openGovDossier(activeGovProjects[0]?.id || 1)">
-          <i class="fa-solid fa-file-invoice"></i> Sample Briefing
-        </button>
-        <button class="btn btn-primary" onclick="openNewGovProjectModal()">
-          <i class="fa-solid fa-plus"></i> Sanction Project
-        </button>
+      <div class="login-card-body">
+        <div id="loginErrorMessage" class="login-error-alert"></div>
+
+        <form id="govLoginForm">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label">Official Email / Government ID</label>
+            <div style="position: relative;">
+              <i class="fa-solid fa-id-badge" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+              <input type="email" id="govLoginEmail" class="form-input" style="padding-left: 38px;" placeholder="name@gov.in or name@nic.in" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label">Security Access Password</label>
+            <div style="position: relative;">
+              <i class="fa-solid fa-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+              <input type="password" id="govLoginPassword" class="form-input" style="padding-left: 38px;" placeholder="••••••••••••" required>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 0.78rem;">
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="govRememberMe" checked> Remember Session
+            </label>
+            <span style="color: var(--cyan);"><i class="fa-solid fa-fingerprint"></i> TLS 1.3 256-Bit Encrypted</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.92rem; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);">
+            <i class="fa-solid fa-lock-open"></i> Authenticate & Enter System
+          </button>
+        </form>
+
+        <!-- Quick 1-Click Ministerial Accounts (For Evaluators & Stakeholders) -->
+        <div class="demo-credentials-box">
+          <h4>Authorized Test Credentials (Click to Sign In)</h4>
+          
+          <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('admin')">
+            <div>
+              <strong>Cabinet Secretary / PMO Admin</strong>
+              <div style="font-size: 0.68rem; color: var(--text-muted);">admin.pmo@nic.in (Full Admin Access)</div>
+            </div>
+            <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+          </div>
+
+          <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('morth')">
+            <div>
+              <strong>Joint Secretary (Highways & MoRTH)</strong>
+              <div style="font-size: 0.68rem; color: var(--text-muted);">js.morth@gov.in (Ministerial Review)</div>
+            </div>
+            <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+          </div>
+
+          <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('railways')">
+            <div>
+              <strong>Director (Railways & DFCCIL)</strong>
+              <div style="font-size: 0.68rem; color: var(--text-muted);">director.infra@gov.in (EVM Review)</div>
+            </div>
+            <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+          </div>
+        </div>
+
       </div>
-    </header>
+    </div>
+  </div>
+
+  <!-- Main Authenticated App Container (Hidden until authenticated) -->
+  <div id="mainAppContainer" style="display: none;">
+    <div class="app-container">
+      
+      <!-- Top Navigation & National Authority Header -->
+      <header class="navbar">
+        <div class="brand-section">
+          <div class="brand-badge">
+            <div class="brand-icon" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+              <i class="fa-solid fa-landmark"></i>
+            </div>
+            <div class="brand-text">
+              <h1>NIM-PRIS</h1>
+              <div class="brand-sub">
+                <span>National Infrastructure Monitoring & Project Risk Intelligence System</span>
+                <span class="badge badge-cat" style="font-size: 0.68rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">PM GatiShakti & CCI Division</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <div id="userProfileSection" style="display: flex; align-items: center; gap: 8px;"></div>
+          <button id="installAppBtn" class="btn btn-primary" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);" title="Install Standalone App">
+            <i class="fa-solid fa-mobile-screen-button"></i> Install App
+          </button>
+          <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode">
+            <i id="themeIcon" class="fa-solid fa-sun"></i>
+          </button>
+          <button class="btn btn-secondary" onclick="exportMasterCSV()" title="Download Full Project Dataset">
+            <i class="fa-solid fa-file-csv"></i> Export Master CSV
+          </button>
+          <button class="btn btn-secondary" onclick="openGovDossier(activeGovProjects[0]?.id || 1)">
+            <i class="fa-solid fa-file-invoice"></i> Sample Briefing
+          </button>
+          <button class="btn btn-primary" onclick="openNewGovProjectModal()">
+            <i class="fa-solid fa-plus"></i> Sanction Project
+          </button>
+        </div>
+      </header>
 
     <!-- Navigation Tabs -->
     <nav class="tabs-bar">
@@ -741,10 +827,13 @@
     <i class="fa-solid fa-sparkles"></i>
   </button>
 
+  </div> <!-- /mainAppContainer -->
+
   <!-- Scripts: Loaded in dependency order -->
   <script src="./static/js/gov_data.js"></script>
   <script src="./static/js/ml_engine_client.js"></script>
   <script src="./static/js/charts.js"></script>
+  <script src="./static/js/auth.js"></script>
   <script src="./static/js/main.js"></script>
 </body>
 </html>

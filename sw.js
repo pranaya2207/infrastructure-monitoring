@@ -3,7 +3,7 @@
 // Offline Cache & Cross-Platform Standalone Execution
 // ==========================================================================
 
-const CACHE_NAME = 'nim-pris-v1.0';
+const CACHE_NAME = 'nim-pris-v1.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
   './static/js/gov_data.js',
   './static/js/ml_engine_client.js',
   './static/js/charts.js',
+  './static/js/auth.js',
   './static/js/main.js',
   './static/icons/icon-192.svg',
   './static/icons/icon-512.svg'
