@@ -3,7 +3,7 @@
 // Offline Cache & Cross-Platform Standalone Execution
 // ==========================================================================
 
-const CACHE_NAME = 'nim-pris-v1.1';
+const CACHE_NAME = 'nim-pris-v1.2';
 const STATIC_ASSETS = [
   './',
   './index.html',

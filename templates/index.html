@@ -56,68 +56,278 @@
         <h2>NIM-PRIS Portal</h2>
         <p>National Infrastructure Monitoring & Project Risk Intelligence System</p>
         <div class="security-clearance-pill">
-          <i class="fa-solid fa-lock"></i> Restricted Government Access • Level 3 Clearance
+          <i class="fa-solid fa-lock"></i> Restricted Government Access • Multi-Tier Security
         </div>
       </div>
 
       <div class="login-card-body">
-        <div id="loginErrorMessage" class="login-error-alert"></div>
-
-        <form id="govLoginForm">
-          <div class="form-group" style="margin-bottom: 14px;">
-            <label class="form-label">Official Email / Government ID</label>
-            <div style="position: relative;">
-              <i class="fa-solid fa-id-badge" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
-              <input type="email" id="govLoginEmail" class="form-input" style="padding-left: 38px;" placeholder="name@gov.in or name@nic.in" required>
+        <!-- Access Mode Selector: Public Citizen vs Government Official -->
+        <div class="user-type-selector">
+          <button type="button" class="user-type-btn active" id="typePublicBtn" onclick="AuthModule.switchUserType('public')">
+            <div class="user-type-icon"><i class="fa-solid fa-users"></i></div>
+            <div class="user-type-info">
+              <div class="user-type-title">Public Citizen</div>
+              <div class="user-type-sub">Transparent Progress (View Only)</div>
             </div>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 16px;">
-            <label class="form-label">Security Access Password</label>
-            <div style="position: relative;">
-              <i class="fa-solid fa-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
-              <input type="password" id="govLoginPassword" class="form-input" style="padding-left: 38px;" placeholder="••••••••••••" required>
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 0.78rem;">
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-              <input type="checkbox" id="govRememberMe" checked> Remember Session
-            </label>
-            <span style="color: var(--cyan);"><i class="fa-solid fa-fingerprint"></i> TLS 1.3 256-Bit Encrypted</span>
-          </div>
-
-          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.92rem; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);">
-            <i class="fa-solid fa-lock-open"></i> Authenticate & Enter System
           </button>
-        </form>
-
-        <!-- Quick 1-Click Ministerial Accounts (For Evaluators & Stakeholders) -->
-        <div class="demo-credentials-box">
-          <h4>Authorized Test Credentials (Click to Sign In)</h4>
-          
-          <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('admin')">
-            <div>
-              <strong>Cabinet Secretary / PMO Admin</strong>
-              <div style="font-size: 0.68rem; color: var(--text-muted);">admin.pmo@nic.in (Full Admin Access)</div>
+          <button type="button" class="user-type-btn" id="typeOfficialBtn" onclick="AuthModule.switchUserType('official')">
+            <div class="user-type-icon"><i class="fa-solid fa-building-columns"></i></div>
+            <div class="user-type-info">
+              <div class="user-type-title">Government Official</div>
+              <div class="user-type-sub">Authorized Access (Edit & Sanction)</div>
             </div>
-            <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+          </button>
+        </div>
+
+        <!-- ========================================================
+             TIER 1: PUBLIC CITIZEN ACCESS (Name & Email Only)
+             ======================================================== -->
+        <div id="publicAuthContainer">
+          <div class="citizen-transparency-pill">
+            <i class="fa-solid fa-eye"></i> <strong>Open Citizen Access:</strong> Complete real-time transparency into all national project milestones, physical progress, timelines, and AI risk forecasts. No password required.
           </div>
 
-          <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('morth')">
-            <div>
-              <strong>Joint Secretary (Highways & MoRTH)</strong>
-              <div style="font-size: 0.68rem; color: var(--text-muted);">js.morth@gov.in (Ministerial Review)</div>
+          <div id="publicErrorMessage" class="login-error-alert"></div>
+
+          <form id="publicLoginForm">
+            <div class="form-group" style="margin-bottom: 13px;">
+              <label class="form-label">Full Name / Citizen Name</label>
+              <div style="position: relative;">
+                <i class="fa-solid fa-user" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                <input type="text" id="publicLoginName" class="form-input" style="padding-left: 38px;" placeholder="e.g. Aarav Sharma" required>
+              </div>
             </div>
-            <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label class="form-label">Email Address (For Updates & Notifications)</label>
+              <div style="position: relative;">
+                <i class="fa-solid fa-envelope" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                <input type="email" id="publicLoginEmail" class="form-input" style="padding-left: 38px;" placeholder="e.g. aarav.sharma@gmail.com" required>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 0.78rem;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="publicRememberMe" checked> Remember Citizen Session
+              </label>
+              <span style="color: #60a5fa;"><i class="fa-solid fa-globe"></i> Open Citizen Portal</span>
+            </div>
+
+            <button type="submit" id="publicSubmitBtn" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.92rem; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Enter Citizen Portal (View Progress)
+            </button>
+          </form>
+
+          <!-- 1-Click Citizen Demo Account -->
+          <div class="demo-credentials-box">
+            <h4>Quick Guest Access (1-Click Citizen View)</h4>
+            <div class="demo-account-chip" onclick="AuthModule.quickCitizenLogin()">
+              <div>
+                <strong>Aarav Sharma (Citizen Observer)</strong>
+                <div style="font-size: 0.68rem; color: var(--text-muted);">Instant Public Access • View All Projects & Progress</div>
+              </div>
+              <span class="badge badge-low" style="font-size: 0.65rem;">Quick View</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             TIER 2: GOVERNMENT OFFICIAL ACCESS (Sign In & Register)
+             ======================================================== -->
+        <div id="officialAuthContainer" style="display: none;">
+          <!-- Dual Authentication Tabs (Sign In / Create Account) -->
+          <div class="auth-tabs">
+            <button type="button" class="auth-tab-btn active" id="tabSignInBtn" onclick="AuthModule.switchTab('login')">
+              <i class="fa-solid fa-right-to-bracket"></i> Official Sign In
+            </button>
+            <button type="button" class="auth-tab-btn" id="tabRegisterBtn" onclick="AuthModule.switchTab('register')">
+              <i class="fa-solid fa-user-plus"></i> Create Official Account
+            </button>
           </div>
 
-          <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('railways')">
-            <div>
-              <strong>Director (Railways & DFCCIL)</strong>
-              <div style="font-size: 0.68rem; color: var(--text-muted);">director.infra@gov.in (EVM Review)</div>
+          <!-- Alert Notifications -->
+          <div id="loginErrorMessage" class="login-error-alert"></div>
+          <div id="registerSuccessMessage" class="login-success-alert"></div>
+          <div id="registerErrorMessage" class="login-error-alert"></div>
+
+          <!-- TAB 1: SIGN IN FORM CONTAINER -->
+          <div id="govLoginFormContainer">
+            <form id="govLoginForm">
+              <!-- Full Name / Officer Name -->
+              <div class="form-group" style="margin-bottom: 13px;">
+                <label class="form-label">Full Name / Officer Name</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-user" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <input type="text" id="govLoginName" class="form-input" style="padding-left: 38px;" placeholder="e.g. Dr. Rajesh Verma, IAS" required>
+                </div>
+              </div>
+
+              <!-- Official Email -->
+              <div class="form-group" style="margin-bottom: 13px;">
+                <label class="form-label">Official Email / Government ID</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-id-badge" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <input type="email" id="govLoginEmail" class="form-input" style="padding-left: 38px;" placeholder="name@gov.in or name@nic.in" required>
+                </div>
+              </div>
+
+              <!-- Security Access Password with Eye Toggle -->
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">Security Access Password</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <input type="password" id="govLoginPassword" class="form-input" style="padding-left: 38px; padding-right: 40px;" placeholder="••••••••••••" required>
+                  <button type="button" class="password-toggle-btn" onclick="AuthModule.togglePassword('govLoginPassword', 'loginEyeIcon')" title="Toggle Password Visibility">
+                    <i id="loginEyeIcon" class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 0.78rem;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="govRememberMe" checked> Remember Session
+                </label>
+                <span style="color: var(--cyan);"><i class="fa-solid fa-fingerprint"></i> TLS 1.3 256-Bit</span>
+              </div>
+
+              <button type="submit" id="loginSubmitBtn" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.92rem; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);">
+                <i class="fa-solid fa-lock-open"></i> Authenticate & Enter System
+              </button>
+
+              <div style="text-align: center; margin-top: 14px; font-size: 0.8rem; color: var(--text-muted);">
+                Don't have an official account? <a href="javascript:void(0)" onclick="AuthModule.switchTab('register')" style="color: var(--cyan); font-weight: 600;">Create Official Account</a>
+              </div>
+            </form>
+
+            <!-- Quick 1-Click Ministerial Accounts (Evaluator Auto-Fill & Test) -->
+            <div class="demo-credentials-box">
+              <h4>Authorized Test Credentials (Click to Auto-Fill & Enter)</h4>
+              
+              <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('admin')">
+                <div>
+                  <strong>Dr. Rajesh Verma, IAS (Cabinet Sec / PMO)</strong>
+                  <div style="font-size: 0.68rem; color: var(--text-muted);">admin.pmo@nic.in • Level-3 Administrator</div>
+                </div>
+                <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+              </div>
+
+              <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('morth')">
+                <div>
+                  <strong>Amit Singhal, IRSE (Joint Secretary)</strong>
+                  <div style="font-size: 0.68rem; color: var(--text-muted);">js.morth@gov.in • MoRTH Highways</div>
+                </div>
+                <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+              </div>
+
+              <div class="demo-account-chip" onclick="AuthModule.quickDemoLogin('railways')">
+                <div>
+                  <strong>Priya Nambiar, IRTS (Director)</strong>
+                  <div style="font-size: 0.68rem; color: var(--text-muted);">director.infra@gov.in • Railways & DFCCIL</div>
+                </div>
+                <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+              </div>
             </div>
-            <span class="badge badge-low" style="font-size: 0.65rem;">Auto Fill</span>
+          </div>
+
+          <!-- TAB 2: CREATE ACCOUNT FORM CONTAINER -->
+          <div id="govRegisterFormContainer" style="display: none;">
+            <form id="govRegisterForm">
+              <!-- Full Name -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">Full Name & Title</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-user-tie" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <input type="text" id="govRegName" class="form-input" style="padding-left: 38px;" placeholder="e.g. Er. Vikram Mehta" required>
+                </div>
+              </div>
+
+              <!-- Official Email -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">Official / Department Email</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-envelope" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <input type="email" id="govRegEmail" class="form-input" style="padding-left: 38px;" placeholder="e.g. vikram.mehta@nhai.gov.in" required>
+                </div>
+              </div>
+
+              <!-- Ministry and Designation Grid -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <div class="form-group">
+                  <label class="form-label">Ministry / Dept</label>
+                  <div style="position: relative;">
+                    <i class="fa-solid fa-building-columns" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                    <input type="text" id="govRegMinistry" class="form-input" style="padding-left: 36px;" placeholder="e.g. MoRTH / NHAI" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Designation / Role</label>
+                  <div style="position: relative;">
+                    <i class="fa-solid fa-id-card-clip" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                    <input type="text" id="govRegDesignation" class="form-input" style="padding-left: 36px;" placeholder="e.g. Project Director" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Clearance Level Dropdown -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">Security Clearance / Role Tier</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-shield-halved" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <select id="govRegClearance" class="form-select" style="padding-left: 38px;">
+                    <option value="Level-2 (Authorized Officer)|OFFICER">Level-2: Authorized Officer / Project Director</option>
+                    <option value="Level-1 (Field Analyst)|ANALYST">Level-1: Field Engineer / Risk Analyst</option>
+                    <option value="Level-3 (Cabinet Confidential)|ADMIN">Level-3: Cabinet / PMO Nodal Administrator</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Create Password with Strength Bar -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">Create Security Password</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-lock" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <input type="password" id="govRegPassword" class="form-input" style="padding-left: 38px; padding-right: 40px;" placeholder="Minimum 6 characters" required oninput="AuthModule.checkPasswordStrength(this.value)">
+                  <button type="button" class="password-toggle-btn" onclick="AuthModule.togglePassword('govRegPassword', 'regEyeIcon')" title="Toggle Password Visibility">
+                    <i id="regEyeIcon" class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+                <div class="password-strength-wrapper">
+                  <div class="password-strength-track">
+                    <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                  </div>
+                  <span id="passwordStrengthText" class="password-strength-text">Password Strength</span>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Confirm Security Password</label>
+                <div style="position: relative;">
+                  <i class="fa-solid fa-circle-check" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                  <input type="password" id="govRegConfirmPassword" class="form-input" style="padding-left: 38px; padding-right: 40px;" placeholder="Re-enter password" required>
+                  <button type="button" class="password-toggle-btn" onclick="AuthModule.togglePassword('govRegConfirmPassword', 'regConfirmEyeIcon')" title="Toggle Password Visibility">
+                    <i id="regConfirmEyeIcon" class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Compliance Agreement -->
+              <div style="margin-bottom: 16px; font-size: 0.76rem;">
+                <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; color: var(--text-secondary);">
+                  <input type="checkbox" id="govRegTerms" required style="margin-top: 2px;">
+                  <span>I certify official government/contractor authorization and agree to adhere to Official Secrets & Infrastructure Data Protocols.</span>
+                </label>
+              </div>
+
+              <button type="submit" id="regSubmitBtn" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.92rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                <i class="fa-solid fa-user-check"></i> Register Official Account & Enter
+              </button>
+
+              <div style="text-align: center; margin-top: 14px; font-size: 0.8rem; color: var(--text-muted);">
+                Already have an official account? <a href="javascript:void(0)" onclick="AuthModule.switchTab('login')" style="color: var(--cyan); font-weight: 600;">Sign In here</a>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -127,6 +337,15 @@
 
   <!-- Main Authenticated App Container (Hidden until authenticated) -->
   <div id="mainAppContainer" style="display: none;">
+    <!-- Public Citizen Read-Only Transparency Ribbon -->
+    <div id="citizenReadOnlyBanner" class="citizen-read-only-banner" style="display: none;">
+      <i class="fa-solid fa-users"></i>
+      <span><strong>Citizen Public Transparency Mode</strong> — You have real-time visibility into all national infrastructure projects, completion timelines, budgets, and AI predictive risk alerts. Project creation and parameter editing are reserved for verified Government Officials.</span>
+      <button class="btn btn-xs btn-outline-primary" onclick="AuthModule.promptSwitchToOfficial()" style="margin-left: auto; white-space: nowrap;">
+        <i class="fa-solid fa-user-shield"></i> Official Login
+      </button>
+    </div>
+
     <div class="app-container">
       
       <!-- Top Navigation & National Authority Header -->
@@ -160,7 +379,7 @@
         <button class="btn btn-secondary" onclick="openGovDossier(activeGovProjects[0]?.id || 1)">
           <i class="fa-solid fa-file-invoice"></i> Sample Briefing
         </button>
-        <button class="btn btn-primary" onclick="openNewGovProjectModal()">
+        <button id="sanctionProjectHeaderBtn" class="btn btn-primary official-only-action" onclick="openNewGovProjectModal()" title="Sanction New Project (Officials Only)">
           <i class="fa-solid fa-plus"></i> Sanction Project
         </button>
       </div>
@@ -583,6 +802,25 @@
           <div><strong>Priority Classification:</strong> <span id="dossierPriority" class="badge badge-cat">--</span></div>
         </div>
 
+        <!-- Citizen Transparency & Public Benefit Card -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 14px 18px; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; margin-bottom: 6px;">
+            <i class="fa-solid fa-bullhorn"></i> Public Benefit & Citizen Impact
+          </div>
+          <p id="dossierPublicBenefit" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-primary); margin: 0;">--</p>
+        </div>
+
+        <!-- Comprehensive Infrastructure Specifications Grid -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; background: var(--bg-tertiary); padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.82rem; border: 1px solid var(--border-color);">
+          <div><strong>Deliverables & Scope:</strong> <div id="dossierScope" style="color: var(--text-secondary); margin-top: 2px;">--</div></div>
+          <div><strong>Prime EPC Contractor:</strong> <div id="dossierLeadContractor" style="color: var(--text-secondary); margin-top: 2px;">--</div></div>
+          <div><strong>Nodal Project Officer:</strong> <div id="dossierNodalOfficer" style="color: var(--text-secondary); margin-top: 2px;">--</div></div>
+          <div><strong>Financing Model:</strong> <div id="dossierFundingMode" style="color: var(--text-secondary); margin-top: 2px;">--</div></div>
+          <div><strong>Active Milestone Phase:</strong> <div id="dossierCurrentStage" style="color: #60a5fa; font-weight: 600; margin-top: 2px;">--</div></div>
+          <div><strong>Last Statutory Audit:</strong> <div id="dossierLastInspection" style="color: #34d399; margin-top: 2px;">--</div></div>
+          <div style="grid-column: span 2;"><strong>Citizen Grievance & Helpline:</strong> <span id="dossierCitizenHelpline" style="color: var(--cyan); font-weight: 600;">--</span></div>
+        </div>
+
         <!-- Health Gauge & High-Level Indices -->
         <div class="risk-hero-grid">
           <div class="health-gauge-card">
@@ -809,6 +1047,53 @@
             <div class="form-group">
               <label class="form-label">Key Critical Bottleneck</label>
               <input type="text" id="projBottleneck" class="form-input" placeholder="e.g. Forest clearance in KM 45-60">
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Citizen Impact & Public Benefit</label>
+              <input type="text" id="projPublicBenefit" class="form-input" placeholder="e.g. Cuts travel time by 50%, enhances interstate freight capacity, reduces CO2 emissions">
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Scope of Work & Deliverables</label>
+              <input type="text" id="projScope" class="form-input" placeholder="e.g. 8-lane access-controlled expressway, 12 major bridges, 4 tunnels, automated tolling">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Lead EPC Contractor / Consortium</label>
+              <input type="text" id="projContractor" class="form-input" placeholder="e.g. L&T Infrastructure / Afcons JV">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nodal Project Officer</label>
+              <input type="text" id="projNodalOfficer" class="form-input" placeholder="e.g. Shri Rajesh Verma, Chief Project Director">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Financing & Procurement Model</label>
+              <select id="projFundingMode" class="form-select">
+                <option value="Hybrid Annuity Model (HAM)">Hybrid Annuity Model (HAM)</option>
+                <option value="EPC (Engineering, Procurement & Construction)">EPC (Govt Funded)</option>
+                <option value="BOT (Build-Operate-Transfer)">BOT (Build-Operate-Transfer)</option>
+                <option value="Central Union Sector Scheme">Central Union Sector Scheme</option>
+                <option value="Multilateral Bilateral Loan (JICA / ADB / World Bank)">Multilateral Loan (JICA / ADB / WB)</option>
+                <option value="Public-Private Partnership (PPP)">Public-Private Partnership (PPP)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Active Milestone Phase / Current Stage</label>
+              <input type="text" id="projCurrentStage" class="form-input" placeholder="e.g. Superstructure Erection & Pier Cap Work (Phase 3)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Last Statutory Inspection / Quality Audit</label>
+              <input type="text" id="projLastInspection" class="form-input" placeholder="e.g. 2026-08-15 (Statutory Quality & Safety Audit: Grade A)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Citizen Support Helpline / Grievance Portal</label>
+              <input type="text" id="projCitizenHelpline" class="form-input" placeholder="e.g. 1800-11-2026 / citizen.grievance@gov.in">
             </div>
           </div>
         </div>

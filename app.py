@@ -1,9 +1,11 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from datetime import datetime
+from flask import Flask, render_template, request, jsonify, session, send_from_directory
 from database.db import (
     init_db, get_all_projects, get_project_by_id,
     insert_project, update_project, delete_project,
-    get_all_alerts, resolve_alert
+    get_all_alerts, resolve_alert,
+    create_user, authenticate_user, get_user_by_email
 )
 from ml_engine.model import ml_engine
 
@@ -17,6 +19,102 @@ init_db()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/manifest.json')
+def serve_manifest():
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'manifest.json')
+
+@app.route('/sw.js')
+def serve_sw():
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'sw.js')
+
+@app.route('/api/auth/public-login', methods=['POST'])
+def api_auth_public_login():
+    data = request.get_json() or {}
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip()
+
+    if not name or not email:
+        return jsonify({'success': False, 'error': 'Name and Email are required for Citizen Portal access.'}), 400
+
+    user_dict = {
+        'id': f'citizen_{int(datetime.now().timestamp())}',
+        'name': name,
+        'email': email.lower(),
+        'designation': 'Citizen Observer',
+        'ministry': 'Public Transparency Portal',
+        'clearance': 'Public Citizen (View Only)',
+        'role': 'PUBLIC',
+        'loginTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+    return jsonify({'success': True, 'user': user_dict}), 200
+
+@app.route('/api/auth/login', methods=['POST'])
+def api_auth_login():
+    data = request.get_json() or {}
+    email = data.get('email', '').strip()
+    password = data.get('password', '')
+    name = data.get('name', '').strip()
+
+    if not email or not password:
+        return jsonify({'success': False, 'error': 'Official Email and Password are required.'}), 400
+
+    result = authenticate_user(email, password, name=name)
+    if result['success']:
+        return jsonify(result), 200
+    return jsonify(result), 401
+
+@app.route('/api/auth/register', methods=['POST'])
+def api_auth_register():
+    data = request.get_json() or {}
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip()
+    password = data.get('password', '')
+    designation = data.get('designation', '').strip()
+    ministry = data.get('ministry', '').strip()
+    clearance = data.get('clearance', 'Level-2 (Authorized)')
+    role = data.get('role', 'OFFICER')
+
+    if not name or not email or not password:
+        return jsonify({'success': False, 'error': 'Name, Official Email, and Password are required.'}), 400
+
+    if len(password) < 6:
+        return jsonify({'success': False, 'error': 'Password must be at least 6 characters long.'}), 400
+
+    result = create_user(
+        name=name,
+        email=email,
+        password=password,
+        designation=designation or 'Authorized Officer',
+        ministry=ministry or 'National Infrastructure',
+        clearance=clearance,
+        role=role
+    )
+
+    if result['success']:
+        return jsonify(result), 201
+    return jsonify(result), 400
+
+@app.route('/api/auth/me', methods=['GET'])
+def api_auth_me():
+    email = request.args.get('email', '').strip()
+    if not email:
+        return jsonify({'authenticated': False}), 401
+    user = get_user_by_email(email)
+    if user:
+        return jsonify({
+            'authenticated': True,
+            'user': {
+                'id': user['id'],
+                'name': user['name'],
+                'email': user['email'],
+                'designation': user.get('designation'),
+                'ministry': user.get('ministry'),
+                'clearance': user.get('clearance'),
+                'role': user.get('role')
+            }
+        })
+    return jsonify({'authenticated': False}), 404
 
 @app.route('/api/dashboard/stats', methods=['GET'])
 def get_dashboard_stats():
@@ -107,7 +205,10 @@ def get_project_details(project_id):
 
 @app.route('/api/projects', methods=['POST'])
 def create_project():
-    data = request.get_json()
+    data = request.get_json() or {}
+    user_role = request.headers.get('X-User-Role') or data.get('role')
+    if user_role == 'PUBLIC':
+        return jsonify({'error': 'Unauthorized: Public citizens have read-only access. Adding projects requires Government Official credentials.'}), 403
     if not data or not data.get('name') or not data.get('budget'):
         return jsonify({'error': 'Missing required project attributes (name, budget)'}), 400
 
@@ -125,6 +226,11 @@ def create_project():
 
 @app.route('/api/projects/<int:project_id>', methods=['PUT'])
 def update_project_data(project_id):
+    data = request.get_json() or {}
+    user_role = request.headers.get('X-User-Role') or data.get('role')
+    if user_role == 'PUBLIC':
+        return jsonify({'error': 'Unauthorized: Public citizens have read-only access. Editing projects requires Government Official credentials.'}), 403
+
     project = get_project_by_id(project_id)
     if not project:
         return jsonify({'error': 'Project not found'}), 404
@@ -146,6 +252,10 @@ def update_project_data(project_id):
 
 @app.route('/api/projects/<int:project_id>', methods=['DELETE'])
 def remove_project(project_id):
+    user_role = request.headers.get('X-User-Role') or (request.get_json() or {}).get('role')
+    if user_role == 'PUBLIC':
+        return jsonify({'error': 'Unauthorized: Public citizens have read-only access. Deleting projects requires Government Official credentials.'}), 403
+
     project = get_project_by_id(project_id)
     if not project:
         return jsonify({'error': 'Project not found'}), 404

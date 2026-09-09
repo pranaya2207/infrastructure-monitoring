@@ -473,20 +473,134 @@ const INITIAL_GOV_PROJECTS = [
   }
 ];
 
+// Rich Benchmark Parameter Registry for Citizen Transparency & Official Oversight
+const BENCHMARK_METADATA = {
+  1: {
+    public_benefit: "Cuts Delhi-Mumbai travel time from 24 hrs to 12 hrs; reduces logistics transit costs by 32%; serves 150,000+ daily vehicles and generates 50,000+ regional jobs.",
+    scope_deliverables: "8-Lane Access-Controlled Green Expressway with provision for 12 lanes; 48 major bridges; 6 wildlife overpasses/underpasses; 24 automated wayside amenities.",
+    lead_contractor: "Larsen & Toubro Ltd. (L&T Heavy Civil Infra) & Patel Engineering",
+    nodal_officer: "Er. Arvind K. Sharma, Chief General Manager (Expressways), NHAI",
+    funding_mode: "Hybrid Annuity Model (HAM) & SPV Infrastructure Bonds",
+    current_stage: "Phase 3: Pavement Quality Concrete (PQC) & Intelligent Transportation Systems (ITS)",
+    last_inspection: "2026-08-18 (Independent Quality Audit by CSIR-CRRI: Rating 9.4/10)",
+    citizen_helpline: "1033 (NHAI Emergency Helpline) / feedback.dme@nhai.org"
+  },
+  2: {
+    public_benefit: "Ensures 365-day strategic and civilian connectivity between Srinagar and Ladakh; cuts Zojila pass transit time from 3.5 hours to 15 minutes; eliminates winter cutoff.",
+    scope_deliverables: "14.15 km Single-Tube Bi-Directional Horseshoe Shaped Tunnel with 2-Lane Carriageway, transverse ventilation, and emergency cross-passages every 125m.",
+    lead_contractor: "Megha Engineering & Infrastructures Ltd. (MEIL)",
+    nodal_officer: "Er. Harish C. Bhatt, Project Director (Tunnels), NHIDCL",
+    funding_mode: "EPC Mode (100% Union Ministry Sanctioned)",
+    current_stage: "Phase 3: Heading & Benching Underground Excavation (9.4 km pierced)",
+    last_inspection: "2026-08-10 (Border Roads Technical Inspection: Compliant)",
+    citizen_helpline: "0194-2452026 (Ladakh Highway Control Room)"
+  },
+  3: {
+    public_benefit: "High-speed economic corridor connecting Varanasi and Kolkata; cuts travel time from 15 hrs to 8.5 hrs; accelerates freight trade through Eastern mineral belts.",
+    scope_deliverables: "610 km 6-Lane Access-Controlled Greenfield Expressway, 7 River Bridges, 18 Interchanges, optical fiber ducting along entire alignment.",
+    lead_contractor: "NHAI / GR Infraprojects Ltd.",
+    nodal_officer: "Er. R. K. Mahapatra, Project Director, NHAI PIU Ranchi",
+    funding_mode: "Hybrid Annuity Model (HAM)",
+    current_stage: "Phase 2: Sub-grade Earthwork, Culverts & Minor Bridge Substructures",
+    last_inspection: "2026-08-04 (Inter-State Quality Verification: Satisfactory)",
+    citizen_helpline: "1800-11-8899 / feedback.bharatmala@nic.in"
+  },
+  4: {
+    public_benefit: "Dedicated rail freight line separating goods from passenger traffic; triples average goods train speeds to 75 km/h; cuts thermal coal and container transit times by 60%.",
+    scope_deliverables: "1,504 km Double-Track Electrified Freight Line with automated signaling (TPWS), heavier axle load tracks (32.5 tonne), and long-haul train handling loops.",
+    lead_contractor: "Dedicated Freight Corridor Corp (DFCCIL) / Tata-Aldesa JV",
+    nodal_officer: "Shri Alok Kumar, Group General Manager (Coordination), DFCCIL",
+    funding_mode: "World Bank Loan (70%) + Ministry of Railways Equity (30%)",
+    current_stage: "Phase 4: Automatic Block Signaling & 2x25kV Traction Substation Energization",
+    last_inspection: "2026-08-25 (Commissioner of Railway Safety CRS Inspection: Certified)",
+    citizen_helpline: "139 (Indian Railways 24x7 Helpline) / grievance@dfccil.co.in"
+  },
+  5: {
+    public_benefit: "India's flagship 320 km/h Bullet Train connecting Mumbai to Ahmedabad in 2 hrs 7 mins; saves 4.5 hours per journey; serves 36,000 daily commuters with zero direct emissions.",
+    scope_deliverables: "508.17 km High-Speed Rail Viaduct, 12 Passenger Terminal Stations, 21 km Undersea & Underground Tunnel Section, 24 River Bridges, Shinkansen E5 Series Train Technology.",
+    lead_contractor: "L&T Heavy Civil / Afcons Infrastructure / Kawasaki-Hitachi Consortium",
+    nodal_officer: "Er. Rajiv S. Rastogi, Director (Projects), NHSRCL",
+    funding_mode: "JICA Official Development Assistance (81% Soft Loan) + Union/State Equity (19%)",
+    current_stage: "Phase 3: Full-Span Girder Erection (315 km viaduct completed) & Undersea Tunnel Boring",
+    last_inspection: "2026-08-22 (JICA Joint Safety Review: Grade Excellent)",
+    citizen_helpline: "1800-266-2026 / info@nhsrcl.in"
+  },
+  6: {
+    public_benefit: "Transforms Jammu & Kashmir with national broad-gauge rail connectivity; passes over Chenab Bridge (world's highest rail arch bridge); ensures all-weather logistics.",
+    scope_deliverables: "272 km Mountainous Broad-Gauge Railway with 38 tunnels (including 12.75 km Pir Panjal Tunnel), 927 bridges, and ballastless track systems.",
+    lead_contractor: "Konkan Railway Corp (KRCL) / IRCON International Ltd. / Afcons",
+    nodal_officer: "Er. Surinder Pal Singh, Chief Administrative Officer (Construction), Northern Railway",
+    funding_mode: "National Project (100% Central Budget Allocation)",
+    current_stage: "Phase 4: Final CRS High-Speed Trial Runs & Station Telecommunication Commissioning",
+    last_inspection: "2026-08-29 (Commissioner of Railway Safety High-Speed Electric Locomotive Trial)",
+    citizen_helpline: "139 / grievance.usbrl@nr.railnet.gov.in"
+  },
+  7: {
+    public_benefit: "Generates 30,000 MW (30 GW) clean renewable electricity; supplies clean power to 16.1 million households; eliminates 58M tonnes of carbon emissions annually.",
+    scope_deliverables: "72,600 Hectares (726 sq km) hybrid solar-wind installation, 4 High-Voltage 765 kV evacuation substations, 2,500 MW Battery Energy Storage Systems (BESS).",
+    lead_contractor: "Adani Green Energy Ltd. & NTPC Renewable Energy Ltd.",
+    nodal_officer: "Dr. P. Venkatachalam, Executive Director (Renewables), Ministry of Power",
+    funding_mode: "Private Sector IPP + Green Energy Corridor Tariff Subsidy",
+    current_stage: "Phase 2: 7,500 MW Solar Array Installation & 765 kV Grid Synchronization",
+    last_inspection: "2026-08-14 (Central Electricity Authority Quality Inspection: Clear)",
+    citizen_helpline: "1800-200-3000 / greengrid@power.gov.in"
+  },
+  8: {
+    public_benefit: "Inter-state green energy transmission corridor delivering 20,000 MW renewable solar & wind power from Western generation hubs to Northern load demand centers.",
+    scope_deliverables: "8,500 circuit km of 765 kV and 400 kV extra-high-voltage transmission lines, 6 automated gas-insulated substations (GIS), and synchronous condensers.",
+    lead_contractor: "Power Grid Corporation of India Ltd. (POWERGRID) / Sterlite Power",
+    nodal_officer: "Er. B. S. Rawat, Executive Director (Engineering), POWERGRID",
+    funding_mode: "Regulated Tariff-Based Competitive Bidding (TBCB)",
+    current_stage: "Phase 3: High-Tension Transmission Tower Stringing Across Thar Desert",
+    last_inspection: "2026-08-16 (Grid Controller of India Pre-Energization Audit: Grade A)",
+    citizen_helpline: "0124-2822000 / corporate.grievance@powergrid.in"
+  },
+  18: {
+    public_benefit: "Decongests Delhi NCR airspace; serves 12 million passengers annually in Phase 1 (scaling to 70M); provides multi-modal cargo transit for manufacturing hubs.",
+    scope_deliverables: "3,900m Code 4F Runways, 100,000 sq m Passenger Terminal Building, Multi-Modal Cargo Hub, Ground Transportation Center with integrated Metro station.",
+    lead_contractor: "Tata Projects Ltd. / Zurich Airport International AG (YIAPL)",
+    nodal_officer: "Shri Dinesh Kumar, CEO, Noida International Airport Ltd. (NIAL)",
+    funding_mode: "Public-Private Partnership (PPP) 40-Year Concession",
+    current_stage: "Phase 4: Passenger Terminal Interior Fit-out, Airfield Lighting & DGCA Aerodrome Licensing",
+    last_inspection: "2026-08-26 (DGCA Calibration & Flight Operations Safety Audit: High Readiness)",
+    citizen_helpline: "0120-2362026 / contact@niairport.in"
+  }
+};
+
+// Helper function to enrich project with exhaustive citizen and operational parameters
+function enrichProjectData(p) {
+  const meta = BENCHMARK_METADATA[p.id] || {};
+  return {
+    ...p,
+    public_benefit: p.public_benefit || meta.public_benefit || `High-impact national infrastructure development delivering direct benefits to over 8M citizens, improving regional mobility, and stimulating regional industrial productivity.`,
+    scope_deliverables: p.scope_deliverables || meta.scope_deliverables || `Multi-tier civil and electrical engineering deliverables with structural sensor arrays and statutory environmental compliance.`,
+    lead_contractor: p.lead_contractor || meta.lead_contractor || (p.agency ? p.agency.split('/')[1]?.trim() || p.agency : 'National Infrastructure Consortium'),
+    nodal_officer: p.nodal_officer || meta.nodal_officer || 'Chief Project Director / Superintending Engineer (Govt of India)',
+    funding_mode: p.funding_mode || meta.funding_mode || (p.sanctioned_budget_cr > 10000 ? 'EPC & Multilateral Infrastructure Loan' : '100% Central Sector Union Scheme'),
+    current_stage: p.current_stage || meta.current_stage || (p.physical_progress_pct > 80 ? 'Phase 4: Testing & Pre-Commissioning' : p.physical_progress_pct > 40 ? 'Phase 3: Superstructure Erection & Systems Integration' : 'Phase 2: Substructure & Civil Earthworks'),
+    last_inspection: p.last_inspection || meta.last_inspection || '2026-08-15 (Independent Quality Audit: Grade A Compliant)',
+    citizen_helpline: p.citizen_helpline || meta.citizen_helpline || '1800-11-2026 / citizen.grievance@gov.in'
+  };
+}
+
 // Helper to get or initialize persistent projects
 function getStoredGovProjects() {
   const stored = localStorage.getItem('nim_pris_gov_projects');
+  let projects = INITIAL_GOV_PROJECTS;
   if (stored) {
     try {
-      return JSON.parse(stored);
+      projects = JSON.parse(stored);
     } catch (e) {
       console.error('Error parsing stored projects, falling back to defaults', e);
+      projects = INITIAL_GOV_PROJECTS;
     }
   }
-  localStorage.setItem('nim_pris_gov_projects', JSON.stringify(INITIAL_GOV_PROJECTS));
-  return INITIAL_GOV_PROJECTS;
+  const enriched = projects.map(enrichProjectData);
+  localStorage.setItem('nim_pris_gov_projects', JSON.stringify(enriched));
+  return enriched;
 }
 
 function saveGovProjects(projects) {
-  localStorage.setItem('nim_pris_gov_projects', JSON.stringify(projects));
+  const enriched = projects.map(enrichProjectData);
+  localStorage.setItem('nim_pris_gov_projects', JSON.stringify(enriched));
 }

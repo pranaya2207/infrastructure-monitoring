@@ -243,12 +243,13 @@ function renderGovProjectsTable(projects) {
       </td>
       <td>
         <div class="action-btns">
-          <button class="btn btn-primary btn-xs" onclick="openGovDossier(${p.id})" title="Official Ministerial Dossier">
+          <button class="btn btn-primary btn-xs" onclick="openGovDossier(${p.id})" title="View Complete Project Transparency Dossier">
             <i class="fa-solid fa-file-invoice"></i> Briefing
           </button>
-          <button class="btn btn-secondary btn-xs" onclick="openEditGovProject(${p.id})" title="Edit Project Parameters">
+          ${(typeof AuthModule !== 'undefined' && AuthModule.isOfficial()) ? `
+          <button class="btn btn-secondary btn-xs official-only-action" onclick="openEditGovProject(${p.id})" title="Edit Project Parameters (Officials Only)">
             <i class="fa-solid fa-pen"></i>
-          </button>
+          </button>` : ''}
         </div>
       </td>
     `;
@@ -338,6 +339,16 @@ function openGovDossier(projectId) {
   setElemText('dossierLandAcq', `${p.land_acquisition_pct}% Handed Over`);
   setElemText('dossierEnvClearance', p.environmental_clearance);
   setElemText('dossierBottleneck', p.critical_bottleneck || 'Milestone verification pending');
+
+  // Detailed Citizen & Operational Transparency Parameters
+  setElemText('dossierPublicBenefit', p.public_benefit || 'Delivers major socio-economic enhancements, passenger/freight mobility, and regional connectivity.');
+  setElemText('dossierScope', p.scope_deliverables || 'Comprehensive multi-tier civil, structural, and electrical infrastructure deliverables.');
+  setElemText('dossierLeadContractor', p.lead_contractor || p.agency || 'Executing EPC Consortium');
+  setElemText('dossierNodalOfficer', p.nodal_officer || 'Chief Project Director / Executive Engineer (Govt of India)');
+  setElemText('dossierFundingMode', p.funding_mode || 'Central Union Sector Budget');
+  setElemText('dossierCurrentStage', p.current_stage || 'Active Milestone Execution');
+  setElemText('dossierLastInspection', p.last_inspection || 'Statutory Quality Audit: Grade A');
+  setElemText('dossierCitizenHelpline', p.citizen_helpline || '1800-11-2026 / citizen.grievance@gov.in');
 
   // Health Score
   setElemText('dossierHealthScore', `${evalRes.health_score}%`);
@@ -458,6 +469,10 @@ function closeAllModals() {
 }
 
 function openNewGovProjectModal() {
+  if (typeof AuthModule !== 'undefined' && !AuthModule.isOfficial()) {
+    alert('Access Restricted: You are currently signed in as a Public Citizen (View Only). Only authorized Government Officials can sanction new infrastructure projects.');
+    return;
+  }
   const form = document.getElementById('govProjectForm');
   if (form) form.reset();
   document.getElementById('govProjectIdHidden').value = '';
@@ -466,6 +481,10 @@ function openNewGovProjectModal() {
 }
 
 function openEditGovProject(id) {
+  if (typeof AuthModule !== 'undefined' && !AuthModule.isOfficial()) {
+    alert('Access Restricted: You are currently signed in as a Public Citizen (View Only). Only authorized Government Officials can edit infrastructure projects.');
+    return;
+  }
   const p = activeGovProjects.find(item => item.id === id);
   if (!p) return;
 
@@ -490,11 +509,25 @@ function openEditGovProject(id) {
   document.getElementById('projDelayedTasks').value = p.delayed_activities || 0;
   document.getElementById('projBottleneck').value = p.critical_bottleneck || '';
 
+  // New detailed parameters
+  if (document.getElementById('projPublicBenefit')) document.getElementById('projPublicBenefit').value = p.public_benefit || '';
+  if (document.getElementById('projScope')) document.getElementById('projScope').value = p.scope_deliverables || '';
+  if (document.getElementById('projContractor')) document.getElementById('projContractor').value = p.lead_contractor || p.agency || '';
+  if (document.getElementById('projNodalOfficer')) document.getElementById('projNodalOfficer').value = p.nodal_officer || '';
+  if (document.getElementById('projFundingMode')) document.getElementById('projFundingMode').value = p.funding_mode || 'Hybrid Annuity Model (HAM)';
+  if (document.getElementById('projCurrentStage')) document.getElementById('projCurrentStage').value = p.current_stage || '';
+  if (document.getElementById('projLastInspection')) document.getElementById('projLastInspection').value = p.last_inspection || '';
+  if (document.getElementById('projCitizenHelpline')) document.getElementById('projCitizenHelpline').value = p.citizen_helpline || '';
+
   openModal('govProjectModal');
 }
 
 function handleGovProjectSubmit(e) {
   e.preventDefault();
+  if (typeof AuthModule !== 'undefined' && !AuthModule.isOfficial()) {
+    alert('Access Restricted: Public accounts have read-only access. Project creation and editing require Government Official clearance.');
+    return;
+  }
   const id = document.getElementById('govProjectIdHidden').value;
 
   const newProject = {
@@ -516,7 +549,15 @@ function handleGovProjectSubmit(e) {
     land_acquisition_pct: parseFloat(document.getElementById('projLandAcq').value) || 100,
     environmental_clearance: document.getElementById('projClearance').value,
     delayed_activities: parseInt(document.getElementById('projDelayedTasks').value) || 0,
-    critical_bottleneck: document.getElementById('projBottleneck').value || 'Milestone verification'
+    critical_bottleneck: document.getElementById('projBottleneck').value || 'Milestone verification',
+    public_benefit: document.getElementById('projPublicBenefit')?.value || 'High-impact national infrastructure initiative benefiting citizens and accelerating regional commerce.',
+    scope_deliverables: document.getElementById('projScope')?.value || 'Comprehensive civil, electrical, and structural engineering deliverables.',
+    lead_contractor: document.getElementById('projContractor')?.value || document.getElementById('projAgency').value,
+    nodal_officer: document.getElementById('projNodalOfficer')?.value || 'Chief Project Director / Executive Engineer',
+    funding_mode: document.getElementById('projFundingMode')?.value || 'Hybrid Annuity Model (HAM)',
+    current_stage: document.getElementById('projCurrentStage')?.value || 'Active Milestone Execution',
+    last_inspection: document.getElementById('projLastInspection')?.value || `${new Date().toISOString().slice(0,10)} (Statutory Quality & Safety Audit: Grade A)`,
+    citizen_helpline: document.getElementById('projCitizenHelpline')?.value || '1800-11-2026 / public.grievance@gov.in'
   };
 
   if (id) {
